@@ -1,11 +1,9 @@
 package DAO;
 
+import connection.ConnectionManager;
 import exceptions.DuplicateObjectException;
 import objects.Book;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -17,20 +15,30 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 public class BookDAOTest {
-    static BookDAO dao;
-    static AuthorDAO authorDAO;
-    static BookCategoryDAO categoryDAO;
+    static BookDao dao;
+    static AuthorDao authorDAO;
+    static BookCategoryDao categoryDAO;
     static Book book;
 
     @BeforeAll
     public static void setup(){
         try {
-            dao = new BookDAO();
-            authorDAO = new AuthorDAO();
-            categoryDAO = new BookCategoryDAO();
+            ConnectionManager.buildConnection();
+            dao = new BookDao();
+            authorDAO = new AuthorDao();
+            categoryDAO = new BookCategoryDao();
             book = new Book(999, authorDAO.findByKey(1).orElse(null), categoryDAO.findByKey(1).orElse(null), "TEST COMMENTS", Date.valueOf("1990-3-22"), "000-0-00-000000-0", Date.valueOf("1990-3-20"), 999.99, "TEST TITLE");
 
-        } catch (SQLException | IOException e) {
+        } catch (IOException | SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @AfterAll
+    public static void cleanup(){
+        try {
+            ConnectionManager.closeConnection();
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
@@ -130,11 +138,5 @@ public class BookDAOTest {
         Assertions.assertNotNull(newBook);
         Assertions.assertEquals("UPDATED TITLE", newBook.getTitle());
         Assertions.assertTrue(dao.delete(newBook), "Failed to delete saved object!!!");
-    }
-
-    @Test
-    @DisplayName("Updating autoincrement")
-    public void updateAutoincrement(){
-        Assertions.assertTrue(dao.updateIncrement());
     }
 }

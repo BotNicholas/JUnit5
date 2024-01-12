@@ -1,6 +1,6 @@
 package services;
 
-import DAO.BookDAO;
+import DAO.BookDao;
 import objects.Author;
 import objects.Book;
 import objects.BookCategory;
@@ -25,7 +25,7 @@ public class BookServiceTest {
     /*@Mock
     static AuthorDAO dao;*/
     @Mock
-    BookDAO bookDAO;
+    BookDao bookDAO;
     @InjectMocks
     BookService service;
     List<Book> books;

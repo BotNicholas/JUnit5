@@ -100,6 +100,10 @@ public class Book {
         this.title = title;
     }
 
+    public String getRank() {
+        return title;
+    }
+
     @Override
     public String toString() {
         return "Book{" +
@@ -119,9 +123,5 @@ public class Book {
     public boolean equals(Object obj) {
         Book book = (Book) obj;
         return this.id.equals(book.id);
-    }
-
-    public class A{
-        String name = "aaa";
     }
 }

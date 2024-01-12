@@ -1,6 +1,7 @@
 package objects;
 
 public class BookCategory {
+
     private Integer code;
     private String description;
 

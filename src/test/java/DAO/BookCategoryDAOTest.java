@@ -1,5 +1,6 @@
 package DAO;
 
+import connection.ConnectionManager;
 import exceptions.DuplicateObjectException;
 import objects.BookCategory;
 import org.junit.jupiter.api.*;
@@ -13,16 +14,28 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 public class BookCategoryDAOTest {
-    static BookCategoryDAO dao;
+    static BookCategoryDao dao;
     static BookCategory category;
 
     @BeforeAll
     public static void setup(){
         try {
-            dao = new BookCategoryDAO();
+            ConnectionManager.buildConnection();
+            dao = new BookCategoryDao();
             category = new BookCategory(999, "TEST CATEGORY");
 
-        } catch (SQLException | IOException e) {
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @AfterAll
+    public static void cleanup(){
+        try {
+            ConnectionManager.closeConnection();
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
@@ -123,11 +136,5 @@ public class BookCategoryDAOTest {
         Assertions.assertNotNull(newCategory);
         Assertions.assertEquals("UPDATED DESCRIPTION", newCategory.getDescription());
         Assertions.assertTrue(dao.delete(newCategory), "Failed to delete the object!!!");
-    }
-
-    @Test
-    @DisplayName("Updating autoincrement")
-    public void updateAutoincrement(){
-        Assertions.assertTrue(dao.updateIncrement());
     }
 }

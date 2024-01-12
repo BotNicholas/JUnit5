@@ -3,6 +3,7 @@ package objects;
 import java.sql.Date;
 
 public class Author {
+
     private Integer id;
     private Date birthDate;
     private String contactDetails;
@@ -104,8 +105,6 @@ public class Author {
                 '}';
     }
 
-    //ID is not so significant because when we save author in DB ID is set automatically,
-    // so it may vary of that was in the saving object!
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -118,10 +117,5 @@ public class Author {
 
         Author author = (Author) obj;
         return (this.id.equals(author.getId()));
-//                || (this.firstname.equals(author.getFirstname())
-//                    && this.lastname.equals(author.getLastname())
-//                    && this.birthDate.equals(author.getBirthDate())
-//                    && this.initials.equals(author.getInitials())
-//                    && this.contactDetails.equals(author.getContactDetails()));
     }
 }

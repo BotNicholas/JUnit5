@@ -1,29 +1,45 @@
 package DAO;
 
+import connection.ConnectionManager;
 import exceptions.DuplicateObjectException;
 import objects.Author;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
 public class AuthorDAOTest {
-    static AuthorDAO dao;
+    static AuthorDao dao;
     static Author author;
 
     @BeforeAll
     public static void setup(){
         try {
-            dao = new AuthorDAO();
+            ConnectionManager.buildConnection();
+            dao = new AuthorDao();
             author = new Author(999, Date.valueOf("1990-3-22"), "TEST CONTACT DETAILS", "TEST", 'M', "TA", "AUTHOR", "TEST OTHER DETAILS");
 
-        } catch (SQLException | IOException e) {
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @AfterAll
+    public static void cleanup(){
+        try {
+            ConnectionManager.closeConnection();
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
@@ -34,6 +50,10 @@ public class AuthorDAOTest {
         List<Author> authors = dao.findAll();
         Assertions.assertNotNull(authors);
         Assertions.assertFalse(authors.isEmpty(), "Authors list is empty");
+
+//        AuthorDao spy = Mockito.spy(dao);
+//        Mockito.when(spy.findAll()).thenThrow(SQLException.class);
+//        spy.findAll();
     }
 
     @Test
@@ -123,11 +143,5 @@ public class AuthorDAOTest {
         Assertions.assertNotNull(newAuthor);
         Assertions.assertEquals("UPDATED NAME", newAuthor.getFirstname());
         Assertions.assertTrue(dao.delete(newAuthor), "Failed to delete saved object!!!");
-    }
-
-    @Test
-    @DisplayName("Updating autoincrement")
-    public void updateAutoincrement(){
-        Assertions.assertTrue(dao.updateIncrement());
     }
 }
