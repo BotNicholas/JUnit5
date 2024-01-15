@@ -3,6 +3,7 @@ package DAO;
 import connection.ConnectionManager;
 import exceptions.DuplicateObjectException;
 import objects.Author;
+import validating.AuthorValidator;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -60,7 +61,11 @@ public class AuthorDao implements DefaultDao<Author, Integer> {
                                                                                                                                       obj.getGender().toString(),
                                                                                                                                       obj.getContactDetails(),
                                                                                                                                       obj.getOtherDetails());
-                return preparedStatement.executeUpdate() > 0;
+                AuthorValidator validator = new AuthorValidator();
+                if (validator.isValid(obj)) {
+                    return preparedStatement.executeUpdate() > 0;
+                }
+                return false;
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -79,7 +84,11 @@ public class AuthorDao implements DefaultDao<Author, Integer> {
                                                                                                                                    obj.getContactDetails(),
                                                                                                                                    obj.getOtherDetails(),
                                                                                                                                    obj.getId())) {
-            return preparedStatement.executeUpdate() > 0;
+            AuthorValidator validator = new AuthorValidator();
+            if (validator.isValid(obj)) {
+                return preparedStatement.executeUpdate() > 0;
+            }
+            return false;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

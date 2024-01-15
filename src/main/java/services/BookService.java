@@ -4,6 +4,7 @@ import DAO.BookDao;
 import objects.Author;
 import objects.Book;
 import objects.BookCategory;
+import ranking.BookRanker;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,5 +36,10 @@ public class BookService {
 
     public int countBooksByCategory(BookCategory category) {
         return dao.findAll().stream().filter(b -> b.getCategory().equals(category)).collect(Collectors.toList()).size();
+    }
+
+    public List<Book> getSortedBooksByRank() {
+        BookRanker ranker = new BookRanker();
+        return findAll().stream().sorted((book1, book2) -> ranker.calculateRank(book1) - ranker.calculateRank(book2)).collect(Collectors.toList());
     }
 }

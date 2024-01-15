@@ -100,10 +100,6 @@ public class Book {
         this.title = title;
     }
 
-    public String getRank() {
-        return title;
-    }
-
     @Override
     public String toString() {
         return "Book{" +

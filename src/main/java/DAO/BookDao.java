@@ -5,6 +5,8 @@ import exceptions.DuplicateObjectException;
 import objects.Author;
 import objects.Book;
 import objects.BookCategory;
+import validating.BookValidator;
+import validating.Validator;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -59,15 +61,19 @@ public class BookDao implements DefaultDao<Book, Integer> {
             try {
                 ConnectionManager.updateIncrementForTable(TABLE);
                 PreparedStatement statement = ConnectionManager.prepareStatement(QUERIES.getProperty("books.insert.query"), obj.getId(),
-                                                                                                                              obj.getAuthor().getId(),
-                                                                                                                              obj.getCategory().getCode(),
-                                                                                                                              obj.getIsbn(),
-                                                                                                                              obj.getPublicationDate(),
-                                                                                                                              obj.getDateAcquired(),
-                                                                                                                              obj.getTitle(),
-                                                                                                                              obj.getRecommendedPrice(),
-                                                                                                                              obj.getComments());
-                return statement.executeUpdate() > 0;
+                                                                                                                            obj.getAuthor().getId(),
+                                                                                                                            obj.getCategory().getCode(),
+                                                                                                                            obj.getIsbn(),
+                                                                                                                            obj.getPublicationDate(),
+                                                                                                                            obj.getDateAcquired(),
+                                                                                                                            obj.getTitle(),
+                                                                                                                            obj.getRecommendedPrice(),
+                                                                                                                            obj.getComments());
+                Validator<Book> validator = new BookValidator();
+                if (validator.isValid(obj)) {
+                    return statement.executeUpdate() > 0;
+                }
+                return false;
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -79,15 +85,19 @@ public class BookDao implements DefaultDao<Book, Integer> {
     @Override
     public Boolean update(Book obj) {
         try (PreparedStatement preparedStatement = ConnectionManager.prepareStatement(QUERIES.getProperty("books.update.query"), obj.getAuthor().getId(),
-                                                                                                                                   obj.getCategory().getCode(),
-                                                                                                                                   obj.getIsbn(),
-                                                                                                                                   obj.getPublicationDate(),
-                                                                                                                                   obj.getDateAcquired(),
-                                                                                                                                   obj.getTitle(),
-                                                                                                                                   obj.getRecommendedPrice(),
-                                                                                                                                   obj.getComments(),
-                                                                                                                                   obj.getId())) {
-            return preparedStatement.executeUpdate() > 0;
+                                                                                                                                 obj.getCategory().getCode(),
+                                                                                                                                 obj.getIsbn(),
+                                                                                                                                 obj.getPublicationDate(),
+                                                                                                                                 obj.getDateAcquired(),
+                                                                                                                                 obj.getTitle(),
+                                                                                                                                 obj.getRecommendedPrice(),
+                                                                                                                                 obj.getComments(),
+                                                                                                                                 obj.getId())) {
+            Validator<Book> validator = new BookValidator();
+            if (validator.isValid(obj)) {
+                return preparedStatement.executeUpdate() > 0;
+            }
+            return false;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

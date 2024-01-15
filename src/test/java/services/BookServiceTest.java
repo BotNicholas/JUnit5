@@ -47,8 +47,8 @@ public class BookServiceTest {
         category2 = new BookCategory(998, "TEST CATEGORY2");
 
         books =  new ArrayList<>();
-        books.add(new Book(1, author2, category1, "TEST COMMENTS", Date.valueOf("1990-3-22"), "000-0-00-000000-0", Date.valueOf("1990-3-20"), 19.99, "TEST TITLE"));
-        books.add(new Book(2, author1, category2, "TEST COMMENTS", Date.valueOf("1990-3-22"), "000-0-00-000000-0", Date.valueOf("1990-3-20"), 29.99, "TEST TITLE"));
+        books.add(new Book(1, author2, category1, "TEST COMMENTS", Date.valueOf("1990-3-22"), "000-0-00-000000-0", Date.valueOf("1990-3-20"), 29.99, "TEST TITLE"));
+        books.add(new Book(2, author1, category2, "TEST COMMENTS", Date.valueOf("1990-3-22"), "000-0-00-000000-0", Date.valueOf("1990-3-20"), 19.99, "TEST TITLE"));
         books.add(new Book(3, author2, category1, "TEST COMMENTS", Date.valueOf("1990-3-22"), "000-0-00-000000-0", Date.valueOf("1990-3-20"), 999.99, "TEST TITLE"));
 
         System.out.println(testInfo.getDisplayName()+": ");
@@ -145,5 +145,24 @@ public class BookServiceTest {
         actual = service.countBooksByCategory(category2);
         Assertions.assertEquals(expected, actual);
         System.out.printf("\t-> Expected books count of %s category - %d, actual is %d\n", category2.getDescription(), expected, actual);
+    }
+
+    @Test
+    @DisplayName("Get sorted list")
+    public void testGetSortedList(){
+        Mockito.when(bookDAO.findAll()).thenReturn(books);
+
+        List<Book> expected = new ArrayList<>();
+        expected.add(books.get(1));
+        expected.add(books.get(0));
+        expected.add(books.get(2));
+
+        List<Book> actual = service.getSortedBooksByRank();
+
+        System.out.println("Actual:\n\t" + actual);
+        System.out.println("Expected:\n\t" + expected);
+        Assertions.assertNotSame(books, actual);
+        Assertions.assertEquals(expected, actual);
+        System.out.println("Done!");
     }
 }

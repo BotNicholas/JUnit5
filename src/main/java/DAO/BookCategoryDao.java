@@ -3,6 +3,8 @@ package DAO;
 import connection.ConnectionManager;
 import exceptions.DuplicateObjectException;
 import objects.BookCategory;
+import validating.BookCategoryValidator;
+import validating.Validator;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -57,7 +59,11 @@ public class BookCategoryDao implements DefaultDao<BookCategory, Integer> {
                 ConnectionManager.updateIncrementForTable(TABLE);
                 PreparedStatement preparedStatement = ConnectionManager.prepareStatement(QUERIES.getProperty("categories.insert.query"), obj.getCode(),
                                                                                                                                          obj.getDescription());
-                return preparedStatement.executeUpdate() > 0;
+                Validator<BookCategory> validator = new BookCategoryValidator();
+                if (validator.isValid(obj)) {
+                    return preparedStatement.executeUpdate() > 0;
+                }
+                return false;
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -70,7 +76,11 @@ public class BookCategoryDao implements DefaultDao<BookCategory, Integer> {
     public Boolean update(BookCategory obj) {
         try (PreparedStatement preparedStatement = ConnectionManager.prepareStatement(QUERIES.getProperty("categories.update.query"), obj.getDescription(),
                                                                                                                                       obj.getCode())) {
-            return preparedStatement.executeUpdate() > 0;
+            Validator<BookCategory> validator = new BookCategoryValidator();
+            if (validator.isValid(obj)) {
+                return preparedStatement.executeUpdate() > 0;
+            }
+            return false;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

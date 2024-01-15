@@ -38,6 +38,8 @@ public class Main {
             System.out.println(service.countBooksByCategory(categoryDao.findByKey(2).orElse(new BookCategory())));
             System.out.println(service.countBooksByCategory(new BookCategory()));
 
+            System.out.println(service.getSortedBooksByRank());
+
             ConnectionManager.closeConnection();
         } catch (IOException e) {
             throw new RuntimeException(e);
