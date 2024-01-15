@@ -1,26 +1,36 @@
 package DAO;
 
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.HeaderColumnNameMappingStrategy;
+import com.opencsv.exceptions.CsvException;
 import connection.ConnectionManager;
 import exceptions.DuplicateObjectException;
 import objects.Author;
 import validating.AuthorValidator;
+import validating.Validator;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.sql.Date;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static DAO.Constants.CSV_OUTPUT_PATH;
 import static DAO.Constants.SQL_PATH;
 
 public class AuthorDao implements DefaultDao<Author, Integer> {
 
     private final Properties QUERIES;
     private static final String TABLE = "authors";
+    private static Validator<Author> validator;
 
     public AuthorDao() throws IOException {
         QUERIES = new Properties();
         QUERIES.load(new FileInputStream(SQL_PATH));
+
+        validator = new AuthorValidator();
     }
 
     @Override
@@ -61,7 +71,6 @@ public class AuthorDao implements DefaultDao<Author, Integer> {
                                                                                                                                       obj.getGender().toString(),
                                                                                                                                       obj.getContactDetails(),
                                                                                                                                       obj.getOtherDetails());
-                AuthorValidator validator = new AuthorValidator();
                 if (validator.isValid(obj)) {
                     return preparedStatement.executeUpdate() > 0;
                 }
@@ -84,7 +93,6 @@ public class AuthorDao implements DefaultDao<Author, Integer> {
                                                                                                                                    obj.getContactDetails(),
                                                                                                                                    obj.getOtherDetails(),
                                                                                                                                    obj.getId())) {
-            AuthorValidator validator = new AuthorValidator();
             if (validator.isValid(obj)) {
                 return preparedStatement.executeUpdate() > 0;
             }
@@ -96,11 +104,14 @@ public class AuthorDao implements DefaultDao<Author, Integer> {
 
     @Override
     public Boolean delete(Author obj) {
-        try (PreparedStatement preparedStatement = ConnectionManager.prepareStatement(QUERIES.getProperty("deleteByID.query").replaceAll("TABLE_NAME", TABLE), obj.getId())) {
-            return preparedStatement.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        if (obj != null) {
+            try (PreparedStatement preparedStatement = ConnectionManager.prepareStatement(QUERIES.getProperty("deleteByID.query").replaceAll("TABLE_NAME", TABLE), obj.getId())) {
+                return preparedStatement.executeUpdate() > 0;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
+        return false;
     }
 
     @Override
@@ -115,5 +126,41 @@ public class AuthorDao implements DefaultDao<Author, Integer> {
         String otherDetails = resultSet.getString("other_details");
 
         return new Author(id, birthDate, contactDetails, firstname, gender, initials, lastname, otherDetails);
+    }
+
+    @Override
+    public Author convertObject(String[] objectLine) {
+        int id = Integer.parseInt(objectLine[0]);
+        String firstname = objectLine[1];
+        String lastname = objectLine[2];
+        String initials = objectLine[3];
+        Date birthDate = Date.valueOf(objectLine[4]);
+        char gender = objectLine[5].charAt(0);
+        String contactDetails = objectLine[6];
+        String otherDetails = objectLine[7];
+
+        return new Author(id, birthDate, contactDetails, firstname, gender, initials, lastname, otherDetails);
+    }
+
+    public String[] convertObjectForCsvExport(Author object) {
+        String pattern = "yyyy-M-d";
+        SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
+
+        String[] line = {
+                object.getId().toString(),
+                object.getFirstname(),
+                object.getLastname(),
+                object.getInitials(),
+                dateFormat.format(object.getBirthDate()),
+                object.getGender().toString(),
+                object.getContactDetails(),
+                object.getOtherDetails()
+        };
+
+        return line;
+    }
+
+    public String[] getHeaderLine(){
+        return new String[]{"id", "firstname", "lastname", "initials", "birth_date", "gender", "contact_details", "other_details"};
     }
 }

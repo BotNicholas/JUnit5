@@ -44,9 +44,6 @@ alter table authors AUTO_INCREMENT=1]]></console>
   <component name="DBNavigator.Project.ExecutionManager">
     <retain-sticky-names value="false" />
   </component>
-  <component name="DBNavigator.Project.FileConnectionMappingManager">
-    <mapping file-url="file://$PROJECT_DIR$/src/main/resources/sql/script.sql" connection-id="cd3315ca-2a38-4ec8-a7df-52e01a05f19b" session-id="MAIN" current-schema="bookseller" />
-  </component>
   <component name="DBNavigator.Project.ObjectQuickFilterManager">
     <last-used-operator value="EQUAL" />
     <filters />

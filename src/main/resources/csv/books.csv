@@ -1,0 +1,3 @@
+id,author_id,book_category_code,isbn,publication_date,date_aquired,title,recommended_price,comments
+4,3,4,978-3-16-148410-0,2020-1-1,2021-1-1,2 The Great Adventure,91.99,Bestseller
+5,4,3,978-1-23-456789-7,2019-1-1,2021-2-1,2 Science for Beginners,92.99,Excellent for students

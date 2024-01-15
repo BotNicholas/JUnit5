@@ -1,19 +1,27 @@
 package DAO;
 
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
+import com.opencsv.exceptions.CsvException;
 import connection.ConnectionManager;
 import exceptions.DuplicateObjectException;
+import objects.Author;
 import objects.BookCategory;
 import validating.BookCategoryValidator;
 import validating.Validator;
 
 import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static DAO.Constants.CSV_OUTPUT_PATH;
 import static DAO.Constants.SQL_PATH;
 
 
@@ -22,9 +30,13 @@ public class BookCategoryDao implements DefaultDao<BookCategory, Integer> {
     private final Properties QUERIES;
     private static final String TABLE = "book_categories";
 
+    private Validator<BookCategory> validator;
+
     public BookCategoryDao() throws IOException {
         QUERIES = new Properties();
         QUERIES.load(new FileInputStream(SQL_PATH));
+
+        validator = new BookCategoryValidator();
     }
 
     @Override
@@ -59,7 +71,6 @@ public class BookCategoryDao implements DefaultDao<BookCategory, Integer> {
                 ConnectionManager.updateIncrementForTable(TABLE);
                 PreparedStatement preparedStatement = ConnectionManager.prepareStatement(QUERIES.getProperty("categories.insert.query"), obj.getCode(),
                                                                                                                                          obj.getDescription());
-                Validator<BookCategory> validator = new BookCategoryValidator();
                 if (validator.isValid(obj)) {
                     return preparedStatement.executeUpdate() > 0;
                 }
@@ -76,7 +87,6 @@ public class BookCategoryDao implements DefaultDao<BookCategory, Integer> {
     public Boolean update(BookCategory obj) {
         try (PreparedStatement preparedStatement = ConnectionManager.prepareStatement(QUERIES.getProperty("categories.update.query"), obj.getDescription(),
                                                                                                                                       obj.getCode())) {
-            Validator<BookCategory> validator = new BookCategoryValidator();
             if (validator.isValid(obj)) {
                 return preparedStatement.executeUpdate() > 0;
             }
@@ -88,11 +98,14 @@ public class BookCategoryDao implements DefaultDao<BookCategory, Integer> {
 
     @Override
     public Boolean delete(BookCategory obj) {
-        try (PreparedStatement preparedStatement = ConnectionManager.prepareStatement(QUERIES.getProperty("deleteByCode.query").replaceAll("TABLE_NAME", TABLE), obj.getCode())) {
-            return preparedStatement.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        if (obj != null) {
+            try (PreparedStatement preparedStatement = ConnectionManager.prepareStatement(QUERIES.getProperty("deleteByCode.query").replaceAll("TABLE_NAME", TABLE), obj.getCode())) {
+                return preparedStatement.executeUpdate() > 0;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
+        return false;
     }
 
     @Override
@@ -101,5 +114,27 @@ public class BookCategoryDao implements DefaultDao<BookCategory, Integer> {
         String categoryDescription = resultSet.getString("category_description");
 
         return new BookCategory(code, categoryDescription);
+    }
+
+    @Override
+    public BookCategory convertObject(String[] objectLine) {
+        int code = Integer.parseInt(objectLine[0]);
+        String categoryDescription = objectLine[1];
+
+        return new BookCategory(code, categoryDescription);
+    }
+
+    @Override
+    public String[] convertObjectForCsvExport(BookCategory object) {
+        String[] line = {
+                object.getCode().toString(),
+                object.getDescription()
+        };
+
+        return line;
+    }
+
+    public String[] getHeaderLine(){
+        return new String[]{"code", "category_description"};
     }
 }
