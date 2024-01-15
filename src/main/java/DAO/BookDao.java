@@ -1,7 +1,5 @@
 package DAO;
 
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvException;
 import connection.ConnectionManager;
 import exceptions.DuplicateObjectException;
 import objects.Author;
@@ -11,7 +9,6 @@ import validating.BookValidator;
 import validating.Validator;
 
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.*;
@@ -26,7 +23,7 @@ public class BookDao implements DefaultDao<Book, Integer> {
     private final AuthorDao authorDAO;
     private final BookCategoryDao categoryDAO;
 
-    private Validator<Book> validator;
+    private final Validator<Book> validator;
 
     public BookDao() throws IOException {
         QUERIES = new Properties();
@@ -171,7 +168,7 @@ public class BookDao implements DefaultDao<Book, Integer> {
         return line;
     }
 
-    public String[] getHeaderLine(){
+    public String[] getHeaderLine() {
         return new String[]{"id", "author_id", "book_category_code", "isbn", "publication_date", "date_aquired", "title", "recommended_price", "comments"};
     }
 }

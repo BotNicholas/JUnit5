@@ -1,17 +1,22 @@
 package DAO;
 
+import com.opencsv.exceptions.CsvException;
 import connection.ConnectionManager;
 import exceptions.DuplicateObjectException;
+import objects.Author;
 import objects.BookCategory;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+
+import static DAO.Constants.CSV_OUTPUT_PATH;
 
 public class BookCategoryDAOTest {
     static BookCategoryDao dao;
@@ -136,5 +141,33 @@ public class BookCategoryDAOTest {
         Assertions.assertNotNull(newCategory);
         Assertions.assertEquals("UPDATED DESCRIPTION", newCategory.getDescription());
         Assertions.assertTrue(dao.delete(newCategory), "Failed to delete the object!!!");
+    }
+
+    @Test
+    @DisplayName("Fill table from CSV file")
+    public void fillFromCsvTest() throws SQLException, DuplicateObjectException, IOException, CsvException {
+        String src = "src/main/resources/csv/categories.csv";
+        List<BookCategory> oldCategories = dao.findAll();
+        List<BookCategory> categories = dao.fillFromCsvFile(src);
+        oldCategories.addAll(categories);
+
+        Assertions.assertFalse(categories.isEmpty());
+        Assertions.assertEquals(oldCategories, dao.findAll());
+
+        Assertions.assertTrue(dao.delete(dao.findByKey(3).orElse(null)));
+        Assertions.assertTrue(dao.delete(dao.findByKey(4).orElse(null)));
+    }
+
+    @Test
+    @DisplayName("Save to CSV file")
+    public void toCsvTest() throws SQLException, IOException {
+        File dir = new File(CSV_OUTPUT_PATH);
+
+        Assertions.assertTrue(dir.isDirectory());
+        File[] filesBefore = dir.listFiles();
+        Assertions.assertNotNull(filesBefore);
+
+        Assertions.assertTrue(dao.toCsv());
+        Assertions.assertEquals(filesBefore.length+1, dir.listFiles().length);
     }
 }

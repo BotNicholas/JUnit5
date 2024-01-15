@@ -4,16 +4,12 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvException;
 import exceptions.DuplicateObjectException;
-import objects.Author;
-import objects.BookCategory;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -44,7 +40,7 @@ public interface DefaultDao<T, K> {
         List<T> objects = readFromCsvFile(path);
 
         if (!objects.isEmpty()) {
-            for (T object : objects){
+            for (T object : objects) {
                 save(object);
             }
         }
@@ -102,7 +98,7 @@ public interface DefaultDao<T, K> {
         return false;
     }
 
-    default List<String[]> convertObjects(List<T> objects){
+    default List<String[]> convertObjects(List<T> objects) {
         List<String[]> lines = new ArrayList<>();
         for (T object : objects) {
             lines.add(convertObjectForCsvExport(object));

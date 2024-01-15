@@ -1,23 +1,18 @@
 package DAO;
 
-import com.opencsv.CSVReader;
-import com.opencsv.CSVWriter;
-import com.opencsv.bean.CsvToBean;
-import com.opencsv.bean.HeaderColumnNameMappingStrategy;
-import com.opencsv.exceptions.CsvException;
 import connection.ConnectionManager;
 import exceptions.DuplicateObjectException;
 import objects.Author;
 import validating.AuthorValidator;
 import validating.Validator;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.Date;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static DAO.Constants.CSV_OUTPUT_PATH;
 import static DAO.Constants.SQL_PATH;
 
 public class AuthorDao implements DefaultDao<Author, Integer> {
@@ -160,7 +155,7 @@ public class AuthorDao implements DefaultDao<Author, Integer> {
         return line;
     }
 
-    public String[] getHeaderLine(){
+    public String[] getHeaderLine() {
         return new String[]{"id", "firstname", "lastname", "initials", "birth_date", "gender", "contact_details", "other_details"};
     }
 }

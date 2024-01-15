@@ -1,18 +1,23 @@
 package DAO;
 
+import com.opencsv.exceptions.CsvException;
 import connection.ConnectionManager;
 import exceptions.DuplicateObjectException;
 import objects.Book;
+import objects.BookCategory;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+
+import static DAO.Constants.CSV_OUTPUT_PATH;
 
 public class BookDAOTest {
     static BookDao dao;
@@ -138,5 +143,43 @@ public class BookDAOTest {
         Assertions.assertNotNull(newBook);
         Assertions.assertEquals("UPDATED TITLE", newBook.getTitle());
         Assertions.assertTrue(dao.delete(newBook), "Failed to delete saved object!!!");
+    }
+
+    @Test
+    @DisplayName("Fill table from CSV file")
+    public void fillFromCsvTest() throws SQLException, DuplicateObjectException, IOException, CsvException {
+        String src = "src/main/resources/csv/";
+
+        Assertions.assertNotNull(authorDAO.fillFromCsvFile(src+"authors.csv"));
+        Assertions.assertNotNull(categoryDAO.fillFromCsvFile(src+"categories.csv"));
+
+        List<Book> oldBooks = dao.findAll();
+        List<Book> books = dao.fillFromCsvFile(src+"books.csv");
+        oldBooks.addAll(books);
+
+        Assertions.assertFalse(books.isEmpty());
+        Assertions.assertEquals(oldBooks, dao.findAll());
+
+        Assertions.assertTrue(authorDAO.delete(authorDAO.findByKey(3).orElse(null)));
+        Assertions.assertTrue(authorDAO.delete(authorDAO.findByKey(4).orElse(null)));
+        Assertions.assertTrue(categoryDAO.delete(categoryDAO.findByKey(3).orElse(null)));
+        Assertions.assertTrue(categoryDAO.delete(categoryDAO.findByKey(4).orElse(null)));
+
+        //do not needed, because cascade is configured in DB
+//        Assertions.assertTrue(dao.delete(dao.findByKey(4).orElse(null)));
+//        Assertions.assertTrue(dao.delete(dao.findByKey(5).orElse(null)));
+    }
+
+    @Test
+    @DisplayName("Save to CSV file")
+    public void toCsvTest() throws SQLException, IOException {
+        File dir = new File(CSV_OUTPUT_PATH);
+
+        Assertions.assertTrue(dir.isDirectory());
+        File[] filesBefore = dir.listFiles();
+        Assertions.assertNotNull(filesBefore);
+
+        Assertions.assertTrue(dao.toCsv());
+        Assertions.assertEquals(filesBefore.length+1, dir.listFiles().length);
     }
 }

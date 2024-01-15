@@ -1,27 +1,19 @@
 package DAO;
 
-import com.opencsv.CSVReader;
-import com.opencsv.CSVWriter;
-import com.opencsv.exceptions.CsvException;
 import connection.ConnectionManager;
 import exceptions.DuplicateObjectException;
-import objects.Author;
 import objects.BookCategory;
 import validating.BookCategoryValidator;
 import validating.Validator;
 
 import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static DAO.Constants.CSV_OUTPUT_PATH;
 import static DAO.Constants.SQL_PATH;
 
 
@@ -30,7 +22,7 @@ public class BookCategoryDao implements DefaultDao<BookCategory, Integer> {
     private final Properties QUERIES;
     private static final String TABLE = "book_categories";
 
-    private Validator<BookCategory> validator;
+    private final Validator<BookCategory> validator;
 
     public BookCategoryDao() throws IOException {
         QUERIES = new Properties();
@@ -134,7 +126,7 @@ public class BookCategoryDao implements DefaultDao<BookCategory, Integer> {
         return line;
     }
 
-    public String[] getHeaderLine(){
+    public String[] getHeaderLine() {
         return new String[]{"code", "category_description"};
     }
 }

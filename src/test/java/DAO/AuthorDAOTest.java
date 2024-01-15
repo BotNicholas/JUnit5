@@ -1,5 +1,6 @@
 package DAO;
 
+import com.opencsv.exceptions.CsvException;
 import connection.ConnectionManager;
 import exceptions.DuplicateObjectException;
 import objects.Author;
@@ -9,6 +10,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.SQLException;
@@ -16,6 +18,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+
+import static DAO.Constants.CSV_OUTPUT_PATH;
 
 public class AuthorDAOTest {
     static AuthorDao dao;
@@ -143,5 +147,33 @@ public class AuthorDAOTest {
         Assertions.assertNotNull(newAuthor);
         Assertions.assertEquals("UPDATED NAME", newAuthor.getFirstname());
         Assertions.assertTrue(dao.delete(newAuthor), "Failed to delete saved object!!!");
+    }
+
+    @Test
+    @DisplayName("Fill table from CSV file")
+    public void fillFromCsvTest() throws SQLException, DuplicateObjectException, IOException, CsvException {
+        String src = "src/main/resources/csv/authors.csv";
+        List<Author> oldAuthors = dao.findAll();
+        List<Author> authors = dao.fillFromCsvFile(src);
+        oldAuthors.addAll(authors);
+
+        Assertions.assertFalse(authors.isEmpty());
+        Assertions.assertEquals(oldAuthors, dao.findAll());
+
+        Assertions.assertTrue(dao.delete(dao.findByKey(3).orElse(null)));
+        Assertions.assertTrue(dao.delete(dao.findByKey(4).orElse(null)));
+    }
+
+    @Test
+    @DisplayName("Save to CSV file")
+    public void toCsvTest() throws SQLException, IOException {
+        File dir = new File(CSV_OUTPUT_PATH);
+
+        Assertions.assertTrue(dir.isDirectory());
+        File[] filesBefore = dir.listFiles();
+        Assertions.assertNotNull(filesBefore);
+
+        Assertions.assertTrue(dao.toCsv());
+        Assertions.assertEquals(filesBefore.length+1, dir.listFiles().length);
     }
 }
