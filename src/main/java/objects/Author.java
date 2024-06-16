@@ -35,7 +35,7 @@ public class Author {
         this.id = id;
     }
 
-    public java.sql.Date getBirthDate() {
+    public Date getBirthDate() {
         return birthDate;
     }
 

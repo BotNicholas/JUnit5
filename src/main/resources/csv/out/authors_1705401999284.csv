@@ -1,0 +1,5 @@
+id,firstname,lastname,initials,birth_date,gender,contact_details,other_details
+1,John,Doe,JD,1970-1-1,M,john.doe@gmail.com,Some details here
+2,Jane,Smith,JS,1980-2-2,F,jane.smith@mail.com,Some details here
+3,John1,Doe1,JD,1970-1-1,M,john.doe1@gmail.com,Some details here
+4,Jane1,Smith1,JS,1980-2-2,F,jane.smith1@mail.com,Some details here

@@ -1,0 +1,6 @@
+id,author_id,book_category_code,isbn,publication_date,date_aquired,title,recommended_price,comments
+1,1,1,978-3-16-148410-0,2020-1-1,2021-1-1,The Great Adventure,19.99,Bestseller
+2,2,2,978-1-23-456789-7,2019-1-1,2021-1-2,Science for Beginners,29.99,Excellent for students
+3,2,1,123-4-56-789098-7,2019-9-10,2019-9-10,Java for Beginners,999.99,Excellent for true javers
+4,3,4,978-3-16-148410-0,2020-1-1,2021-1-1,2 The Great Adventure,91.99,Bestseller
+5,4,3,978-1-23-456789-7,2019-1-1,2021-2-1,2 Science for Beginners,92.99,Excellent for students
